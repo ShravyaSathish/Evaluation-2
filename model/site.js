@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const {Schema} = mongoose
 const siteSchema = Schema({
     siteUrl: {
@@ -42,6 +44,14 @@ const siteSchema = Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
+})
+
+siteSchema.pre('save', async function(next){
+    const site = this
+    if(site.isModified('sitePassword')){
+        site.sitePassword = await bcrypt.hash(site.sitePassword, 8)
+    }
+    next()
 })
 
 const Site = mongoose.model('Sites', siteSchema)

@@ -15,7 +15,6 @@ const userSchema = new Schema({
         required: true,
         minlength: 4,
     },
-    
     tokens:[{
         token:{
             type: String,
@@ -23,7 +22,6 @@ const userSchema = new Schema({
         }
     }],
 })
-
 userSchema.pre('save', async function(next){
     const user = this
     

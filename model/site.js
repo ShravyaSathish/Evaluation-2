@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { text } = require('express')
 const {Schema} = mongoose
 const siteSchema = Schema({
     siteUrl: {
@@ -54,5 +55,6 @@ siteSchema.pre('save', async function(next){
     next()
 })
 
+siteSchema.index({"$**":"text"})
 const Site = mongoose.model('Sites', siteSchema)
 module.exports = Site

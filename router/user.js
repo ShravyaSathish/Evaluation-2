@@ -62,9 +62,7 @@ router.get('/logout/user', auth, async(req, res)=>{
     }
 })
 
-//passed number - not completed
 router.post('/forgotpassword', forgotpassword)
-
 router.post('/verify/otp', verifyOtp)
 
 module.exports = router

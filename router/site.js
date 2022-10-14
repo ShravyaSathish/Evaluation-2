@@ -1,6 +1,7 @@
 const express = require('express')
 const Site = require('../model/site')
 const multer = require('multer')
+const {auth} = require('../controller/user')
 const router = new express.Router()
 
 router.post('/site/create', async (req, res)=>{
@@ -22,6 +23,24 @@ router.get('/sites', async(req, res)=>{
         res.status(400).send({error:'Unable to get the data'})
     }
 })
+
+router.get('/site/search',auth,async (req, res)=>{
+    try{
+        const search = req.query.search || req.body.search
+        const regex = new RegExp(search, "i")
+        await Site.find({number: req.user.number, $text:{$search:regex}}, (error, docs)=>{
+        if(docs){
+            res.status(200).send(docs)
+        }else{
+            res.send(error)
+        }
+    }).clone()
+    }catch(error){
+        res.send({message:error.message})
+    }
+    
+})
+
 
 router.patch('/site/:id', async (req, res)=>{
     const updates = Object.keys(req.body)

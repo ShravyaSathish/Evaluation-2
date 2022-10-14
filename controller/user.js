@@ -65,14 +65,10 @@ const sendPasswordReset = async(req, res)=>{
         const OTP = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChar: false })
         const number = req.body.number
         console.log(OTP)
-        const otp = new Otp({number: number, otp: OTP})
-        const salt = await bcrypt.genSalt(10)
-        otp.otp = await bcrypt.hash(otp.otp, salt)
-        const result = await otp.save()
         res.status(200).send('Otp sent successfully!')
     }
     catch(e){
-        res.status(400).send({error:'Invalid Update'})
+        res.status(400).send()
     }
 }
 
@@ -81,16 +77,13 @@ const forgotpassword = async(req, res)=>{
         const number = req.body.number
         const userData = await User.findOne({number:number})
         if(userData){
-            const user = new User(_.pick(req.body,["number","password"]))
-            await user.save()
-            const token = await user.generateAuthtoken()
-            const data = await User.updateOne({number:number}, {$set:{tokens:token}})
-            sendPasswordReset(userData.number, token)
+            const data = await User.updateOne({number:number})
+            sendPasswordReset(userData.number)
             res.status(200).send({msg:'check your inbox and reset password'})
         }
     }catch(e){
         console.log(e)
         res.status(400).send({error:'Email does not exists'})
     }   
-}
+} 
 module.exports = {findMyCredentials, auth, verifyOtp, forgotpassword}

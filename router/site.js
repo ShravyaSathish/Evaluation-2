@@ -25,7 +25,7 @@ router.get('/sites', async(req, res)=>{
 
 router.patch('/site/:id', async (req, res)=>{
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['siteUrl','siteName','userName','sitePassword','notes','sector']
+    const allowedUpdates = ['siteUrl','siteName','sitePassword','notes','sector']
     const isValidOperation = updates.every((update)=> allowedUpdates.includes(update))
     if(!isValidOperation){
         return res.status(400).send({error:"Invalid Updates Please Try Again"})

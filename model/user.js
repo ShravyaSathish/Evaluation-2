@@ -21,6 +21,10 @@ const userSchema = new Schema({
             required: true
         }
     }],
+    forgotpassword:{
+        type: String,
+        default: ''
+    }
 })
 userSchema.pre('save', async function(next){
     const user = this

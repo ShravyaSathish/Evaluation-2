@@ -1,7 +1,7 @@
 const express = require('express')
 const User = require('../model/user')
 const router = new express.Router()
-const {findMyCredentials, auth} = require('../controller/user')
+const {findMyCredentials, auth, verifyOtp, forgotpassword} = require('../controller/user')
 const { number } = require('joi')
 
 
@@ -50,22 +50,23 @@ router.get('/user/:id', async(req, res)=>{
 
 })
 
-//passed number - not completed
-router.put('/forgotpassword', async(req, res)=>{
+router.get('/logout/user', auth, async(req, res)=>{
     try{
-        const user = User.findOne({number: req.body.number})
-        if(user){
-            const token = await user.generateAuthtoken() 
-            const data = await User.updateOne({number:number},{$set:{'tokens.token':token}})
-            res.status(200).send({success: true, msg:'please check your inbox and reset password'})
-        }else{
-              res.status(200).send({success: true, msg:'does not exist'})
-        }
-    }catch(error){
-        res.status(400).send({error})
+        req.user.tokens = req.user.tokens.filter((token)=>{
+            return token.token !== req.token
+        })
+        await req.user.save()
+        res.send()
+    }catch(e){
+        res.status(500).send()
     }
 })
 
+//passed number - not completed
+router.post('/forgotpassword', forgotpassword)
 
+router.post('/verify/otp', verifyOtp)
 
 module.exports = router
+
+

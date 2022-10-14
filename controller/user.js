@@ -86,7 +86,8 @@ const forgotpassword = async(req, res)=>{
         }
     }catch(e){
         console.log(e)
-        res.status(400).send({error:'Email does not exists'})
+        res.status(400).send({error:'Number does not exists'})
     }   
 } 
+
 module.exports = {findMyCredentials, auth, verifyOtp, forgotpassword}

@@ -4,6 +4,7 @@ const otpGenerator = require('otp-generator')
 const _ = require("underscore")
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const Site = require('../model/site')
 
 
 const findMyCredentials = async(req, res)=>{
@@ -30,13 +31,17 @@ const auth = async(req, res, next)=>{
     try{
         const token = req.header('Authorization').replace('Bearer ', '')
         const decode = jwt.verify(token, 'secret')
-        const user = await User.findOne({_id:decode._id, 'tokens.token':token})
+        const user = await User.findOne({_id:decode._id, 'token':token})
+        const site = await Site.find({userId: req.userId})
         if(!user){
             throw new Error('Unable to Authenticate')
         }
+        req.site = site
+        req.userId = user
         req.user = user
         next()
     }catch(e){
+        console.log(e)
         res.status(401).send({error:'Please authenticate'})
     }
 }
@@ -50,10 +55,9 @@ const verifyOtp = async(req, res)=>{
     const validUser = await bcrypt.compare(req.body.otp, rightOtpFind.otp)
     if(rightOtpFind.number === req.body.number && validUser){
         const user = new User(_.pick(req.body,["number","password"]))
-        const result = await user.save()
-        const token = await user.generateAuthtoken() 
-    
-        return res.status(200).send({message:'Successfull verified otp', data: result, token})
+        //const result = await user.save()
+        // const token = await user.generateAuthtoken()
+        return  res.status(200).send({message:'Successfull verified otp'})
     }
     else{
         return res.status(400).send('Otp was wrong')
@@ -86,7 +90,7 @@ const forgotpassword = async(req, res)=>{
         }
     }catch(e){
         console.log(e)
-        res.status(400).send({error:'Number does not exists'})
+        res.status(400).send({error:'Numberdoes not exists'})
     }   
 } 
 

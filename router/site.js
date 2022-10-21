@@ -4,20 +4,21 @@ const multer = require('multer')
 const {auth} = require('../controller/user')
 const router = new express.Router()
 
-router.post('/site/create', async (req, res)=>{
+router.post('/site/create', auth,  async (req, res)=>{
     const site = new Site(req.body)
     site.save().then(()=>{
         res.status(200).send(site)
         console.log('Successfully added site')
     }).catch((e)=>{
+        console.log(e)
         res.status(400).send({error:'Enter valid details'})
     })
 })
 
-router.get('/sites', async(req, res)=>{
+router.get('/sites',auth,async(req, res)=>{
     try{
-        const site = await Site.find({})
-        res.status(200).send(site)
+        //const site = await Site.find({})
+        res.status(200).send({user:req.userId, site: req.site})
     }
     catch(e){
         res.status(400).send({error:'Unable to get the data'})

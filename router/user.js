@@ -2,7 +2,6 @@ const express = require('express')
 const User = require('../model/user')
 const router = new express.Router()
 const {findMyCredentials, auth, verifyOtp, forgotpassword} = require('../controller/user')
-const { number } = require('joi')
 
 
 router.post('/user/create', async(req, res)=>{
@@ -27,7 +26,7 @@ router.get('/profile', auth, async (req, res)=>{
     }
 })
 
-router.post('/passenger/login', findMyCredentials ,async (req, res)=>{
+router.post('/pass/login', findMyCredentials ,async (req, res)=>{
     try{
         const token = await req.user.generateAuthtoken()
         res.status(200).send({user: req.user, token})
@@ -52,13 +51,11 @@ router.get('/user/:id', async(req, res)=>{
 
 router.get('/logout/user', auth, async(req, res)=>{
     try{
-        req.user.tokens = req.user.tokens.filter((token)=>{
-            return token.token !== req.token
-        })
+        req.user.token = []
         await req.user.save()
-        res.send()
+        res.send("User Logged out successfully")
     }catch(e){
-        res.status(500).send()
+        res.status(400).send("Failed to logout")
     }
 })
 
@@ -66,5 +63,4 @@ router.post('/forgotpassword', forgotpassword)
 router.post('/verify/otp', verifyOtp)
 
 module.exports = router
-
 

@@ -3,7 +3,7 @@ const {Schema} = mongoose
 const otpSchema = Schema({
     number:{
         type: String,
-        required: true
+        required: true,
     },
     otp:{
         type: String,

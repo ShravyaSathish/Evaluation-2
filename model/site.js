@@ -15,7 +15,6 @@ const siteSchema = Schema({
     },
     userName:{
         type: String,
-        unique: true,
         required: true
     },
     sitePassword: {

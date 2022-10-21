@@ -69,6 +69,7 @@ const sendPasswordReset = async (req, res)=>{
     const rightOtpFind = user[user.length - 1]
     if(rightOtpFind.number === req.body.number){
         const user = await User.updateOne({user:req.body.password})
+        user.save()
         res.send('Password Updated Successfully')
     }
 }

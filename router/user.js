@@ -1,7 +1,7 @@
 const express = require('express')
 const User = require('../model/user')
 const router = new express.Router()
-const {findMyCredentials, auth, verifyOtp, forgotpassword} = require('../controller/user')
+const {findMyCredentials, auth, verifyOtp, forgotpassword, sendPasswordReset} = require('../controller/user')
 
 
 router.post('/user/create', async(req, res)=>{
@@ -61,6 +61,7 @@ router.get('/logout/user', auth, async(req, res)=>{
 
 router.post('/forgotpassword', forgotpassword)
 router.post('/verify/otp', verifyOtp)
+router.post('/resetPassword', sendPasswordReset)
 
 module.exports = router
 

@@ -65,33 +65,27 @@ const verifyOtp = async(req, res)=>{
 }
 
 const sendPasswordReset = async (req, res)=>{
-    const user = await User.findOne({number: req.body.number})
-    if(!user){
-        res.status(400).send({error:'No user found with this Number'})
+    const user = await Otp.find({number: req.body.number})
+    const rightOtpFind = user[user.length - 1]
+    if(rightOtpFind.number === req.body.number){
+        const user = await User.updateOne({user:req.body.password})
+        res.send('Password Updated Successfully')
     }
-    const OTP = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChar: false })
-    const number = req.body.number
-    console.log(OTP)
-    const otp = new Otp({number: number, otp: OTP})
-    const salt = await bcrypt.genSalt(10)
-    otp.otp = await bcrypt.hash(otp.otp, salt)
-    const result = await otp.save()
-    res.status(200).send('Otp sent successfully!')
 }
 
 const forgotpassword = async(req, res)=>{
-    try{
+    const user = await User.find({user: req.number})
+    if(user){
+        const OTP = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChar: false })
         const number = req.body.number
-        const userData = await User.findOne({number:number})
-        if(userData){
-            const data = await User.updateOne({number:number})
-            sendPasswordReset(userData.number)
-            res.status(200).send({msg:'check your inbox and reset password'})
-        }
-    }catch(e){
-        console.log(e)
-        res.status(400).send({error:'Numberdoes not exists'})
-    }   
+        console.log(OTP)
+        const otp = new Otp({number: number, otp: OTP})
+         const salt = await bcrypt.genSalt(10)
+        otp.otp = await bcrypt.hash(otp.otp, salt)
+        const result = await otp.save()
+        res.status(200).send('Otp sent successfully!')
+    }
+    
 } 
 
-module.exports = {findMyCredentials, auth, verifyOtp, forgotpassword}
+module.exports = {findMyCredentials, auth, verifyOtp, forgotpassword, sendPasswordReset}

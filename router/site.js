@@ -5,20 +5,29 @@ const {auth} = require('../controller/user')
 const router = new express.Router()
 
 router.post('/site/create', auth,  async (req, res)=>{
-    const site = new Site(req.body)
-    site.save().then(()=>{
-        res.status(200).send(site)
-        console.log('Successfully added site')
-    }).catch((e)=>{
-        console.log(e)
-        res.status(400).send({error:'Enter valid details'})
+        const {siteUrl, siteName, userName, sitePassword, notes, sector} = req.body
+        const newSite = new Site({
+        siteUrl:siteUrl,
+        siteName:siteName,
+        userName:userName,
+        sitePassword:sitePassword,
+        notes:notes,
+        sector:sector,
+        userId:req.userId
     })
+    
+    try{
+        await newSite.save()
+        res.status(201).send(newSite)
+    }catch(error){
+        res.status(400).send({error:"Unable to create Site"})
+    }
 })
 
 router.get('/sites',auth,async(req, res)=>{
     try{
-        //const site = await Site.find({})
-        res.status(200).send({user:req.userId, site: req.site})
+        const site = await Site.find({userId:req.userId})
+        res.status(200).send(site)
     }
     catch(e){
         res.status(400).send({error:'Unable to get the data'})
@@ -37,6 +46,7 @@ router.get('/site/search',auth,async (req, res)=>{
         }
     }).clone()
     }catch(error){
+        console.log(error)
         res.send({message:error.message})
     }
     

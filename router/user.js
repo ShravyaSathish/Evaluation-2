@@ -49,12 +49,13 @@ router.get('/user/:id', async(req, res)=>{
 
 })
 
-router.get('/logout/user', auth, async(req, res)=>{
+router.get('/logout/user', auth,async(req, res)=>{
     try{
         req.user.token = []
         await req.user.save()
         res.send("User Logged out successfully")
     }catch(e){
+        console.log(e)
         res.status(400).send("Failed to logout")
     }
 })

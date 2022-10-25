@@ -8,7 +8,8 @@ const userSchema = new Schema({
     number:{
         type: String,
         required: true,
-        minlength: 10
+        minlength: 10,
+        unique: true
     },
     password:{
         type: String,
@@ -34,8 +35,8 @@ userSchema.pre('save', async function(next){
 userSchema.methods.generateAuthtoken = async function(){
     const user = this
     const token = jwt.sign({_id: user._id},'secret')
-    //user.tokens =user.tokens.concat({token})
-    user.save()
+    //cuser.tokens =user.tokens.concat({token})
+    //user.save()
     return token
 }
 

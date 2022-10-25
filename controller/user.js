@@ -34,12 +34,10 @@ const auth = async(req, res, next)=>{
         const token = req.header('Authorization').replace('Bearer ', '')
         const decode = jwt.verify(token, 'secret')
         const user = await User.findOne({_id:decode._id, 'token':token})
-        //const site = await Site.find({userId: req.userId})
         if(!user){
             throw new Error('Unable to Authenticate')
         }
         req.token = token
-        //req.site = site
         req.userId = user
         req.user = user
         next()
@@ -51,7 +49,7 @@ const auth = async(req, res, next)=>{
 
 
 
-const verifyOtp = async(req, res)=>{   
+const verifyOtp = async(req, res,next)=>{   
     const otpHolder = await Otp.find({number: req.body.number})
     if(otpHolder.length === 0){
         return res.status(400).send('OTP Expired!')
@@ -59,10 +57,14 @@ const verifyOtp = async(req, res)=>{
     const rightOtpFind = otpHolder[otpHolder.length - 1]
     const validUser = await bcrypt.compare(req.body.otp, rightOtpFind.otp)
     if(rightOtpFind.number === req.body.number && validUser){
-        const user = new User(_.pick(req.body,["number","password"]))
-        //const result = await user.save()
+        console.log("Tadaaaass")
+        const user = new User(_.pick(req.body,["number"]))
+        // console.log(user)
+        // const result = await user.save()
+        // console.log(user)
         // const token = await user.generateAuthtoken()
-        return  res.status(200).send({message:'Successfull verified otp'})
+        next()
+        // return  res.status(200).send({message:'Successfull verified otp',token})
     }
     else{
         return res.status(400).send('Otp was wrong')
@@ -70,16 +72,20 @@ const verifyOtp = async(req, res)=>{
 }
 
 const sendPasswordReset = async (req, res)=>{
-    const user = await Otp.find({number: req.body.number})
-    const rightOtpFind = user[user.length - 1]
-    if(rightOtpFind.number === req.body.number){
-        const user = await User.updateOne({user:req.body.password})
-        user.save()
-        res.send('Password Updated Successfully')
-    }
+  try {
+    const{number,password}=req.body
+    console.log(number,password)
+    const hashedPassword = await  bcrypt.hash(password, 8)
+    const result = await User.findOneAndUpdate({number},{password:hashedPassword},{new:true})
+    if(result) res.send(result)
+    else res.send("couldn't update")
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("error occured")
+  }
 }
 
-const forgotpassword = async(req, res)=>{
+const generateOtp = async(req, res)=>{
     const user = await User.find({user: req.number})
     if(user){
         const OTP = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChar: false })
@@ -94,4 +100,4 @@ const forgotpassword = async(req, res)=>{
     
 } 
 
-module.exports = {findMyCredentials, auth, verifyOtp, forgotpassword, sendPasswordReset}
+module.exports = {findMyCredentials, auth, verifyOtp, generateOtp, sendPasswordReset}

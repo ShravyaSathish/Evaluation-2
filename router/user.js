@@ -53,12 +53,16 @@ router.get('/user/:id', async(req, res)=>{
 
 router.get('/logout/user', auth,async(req, res)=>{
     try{
-        req.user.tokens = []
-        await req.user.save()
-        res.send("User Logged out successfully")
-    }catch(e){
-        console.log(e)
-        res.status(400).send("Failed to logout")
+        const userToken = await User.findOne({refreshToken: req.body.refreshToken}); 
+        if(!userToken){
+            return res.status(200).send({message:"logged out already"})
+        }else{
+            await User.findOneAndUpdate({refreshToken: req.body.refreshToken},{refreshToken:""})
+            res.status(400).send("logged out successfully!")
+        }
+    }
+    catch(error){
+        res.status(400).send('Failed to logout')
     }
 })
 

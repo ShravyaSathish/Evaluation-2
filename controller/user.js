@@ -17,15 +17,6 @@ const findMyCredentials = async(req, res, next)=>{
     }
     req.user = user
     next()
-    //Generate Otp
-    // const OTP = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChar: false })
-    // const number = req.body.number
-    // console.log(OTP)
-    // const otp = new Otp({number: number, otp: OTP})
-    // const salt = await bcrypt.genSalt(10)
-    // otp.otp = await bcrypt.hash(otp.otp, salt)
-    // await otp.save()
-    // res.status(200).send('Otp sent successfully!')
 }
 
 const auth = async(req, res, next)=>{
@@ -47,7 +38,6 @@ const auth = async(req, res, next)=>{
 }
 
 
-
 const verifyOtp = async(req, res,next)=>{   
     const otpHolder = await Otp.find({number: req.body.number})
     if(otpHolder.length === 0){
@@ -57,12 +47,7 @@ const verifyOtp = async(req, res,next)=>{
     const validUser = await bcrypt.compare(req.body.otp, rightOtpFind.otp)
     if(rightOtpFind.number === req.body.number && validUser){
         const user = new User(_.pick(req.body,["number"]))
-        // console.log(user)
-        // const result = await user.save()
-        // console.log(user)
-        // const token = await user.generateAuthtoken()
         next()
-        // return  res.status(200).send({message:'Successfull verified otp',token})
     }
     else{
         return res.status(400).send('Otp was wrong')

@@ -2,8 +2,6 @@ const express = require('express')
 const Site = require('../model/site')
 const multer = require('multer')
 const {auth} = require('../controller/user')
-const Media = require('twilio/lib/rest/Media')
-const { number } = require('joi')
 const router = new express.Router()
 
 router.post('/site/create', auth,  async (req, res)=>{

@@ -27,7 +27,7 @@ router.get('/profile', auth, async (req, res)=>{
     }
 })
 
-router.post('/pass/login', findMyCredentials ,async (req, res)=>{
+router.post('/user/login', findMyCredentials ,async (req, res)=>{
     try{
         const {token,refreshToken} = await req.user.generateAuthtoken()
         res.status(200).send({user: req.user, token, refreshToken})

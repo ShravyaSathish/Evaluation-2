@@ -40,7 +40,7 @@ router.get('/site/search',auth,async (req, res)=>{
     try{
         const search = req.query.search || req.body.search
         const regex = new RegExp(search, "i")
-        await Site.find({number: req.user.number, $text:{$search:regex}}, (error, docs)=>{
+        await Site.find({userId:req.userId, $text:{$search:regex}}, (error, docs)=>{
         if(docs){
             res.status(200).send(docs)
         }else{
@@ -54,26 +54,16 @@ router.get('/site/search',auth,async (req, res)=>{
     
 })
 
-router.post('/allSites', auth,async(req,res)=>{
+router.post('/sector/site',auth,async(req,res)=>{
     try {
-        let sector = req.body.sector || "All"
-        let filter = {number: req.user.number}
-        if(sector!="All"){
-            filter = {$and:[{sector:sector},{number:req.user.number}]}
-        }
-        await Site.find({$and: [{ sector: sector }, { number: req.user.number }],},{ __v: 0 },function (err, documents){
-            if (err) return res.sendStatus(401).send(err);
-            else {
-                if (documents.length == 0) {
-                    return res.send(`No sites in ${sector} category!`);
-                }
-                return res.send(documents);
-            }
-        }).clone();
-    } 
-    catch (err) {
-        console.log(err)
-        return res.status(400).send({ message: err.message });
+        const sector = req.body.sector
+        response = await Site.find({
+            userId:req.userId,
+            sector: `${sector}`
+        })
+        res.send(response)
+    } catch (error) {
+        res.status(400).send(error.message)
     }
 })
 
@@ -113,7 +103,7 @@ const upload =  multer({
     }
 })
 router.post('/upload/logo', upload.single('logo'), async(req, res)=>{
-    res.status(200).send()
+    res.status(200).send({message:"Logo uploaded successfully!"})
 }, (error, req, res, next)=>{
     res.status(400).send({error: error.message})
 })

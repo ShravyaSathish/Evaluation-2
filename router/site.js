@@ -2,6 +2,8 @@ const express = require('express')
 const Site = require('../model/site')
 const multer = require('multer')
 const {auth} = require('../controller/user')
+const Media = require('twilio/lib/rest/Media')
+const { number } = require('joi')
 const router = new express.Router()
 
 router.post('/site/create', auth,  async (req, res)=>{
@@ -52,8 +54,30 @@ router.get('/site/search',auth,async (req, res)=>{
     
 })
 
+router.post('/allSites', auth,async(req,res)=>{
+    try {
+        let sector = req.body.sector || "All"
+        let filter = {number: req.user.number}
+        if(sector!="All"){
+            filter = {$and:[{sector:sector},{number:req.user.number}]}
+        }
+        await Site.find({$and: [{ sector: sector }, { number: req.user.number }],},{ __v: 0 },function (err, documents){
+            if (err) return res.sendStatus(401).send(err);
+            else {
+                if (documents.length == 0) {
+                    return res.send(`No sites in ${sector} category!`);
+                }
+                return res.send(documents);
+            }
+        }).clone();
+    } 
+    catch (err) {
+        console.log(err)
+        return res.status(400).send({ message: err.message });
+    }
+})
 
-router.patch('/site/:id', async (req, res)=>{
+router.patch('/site/:id', auth,async (req, res)=>{
     const updates = Object.keys(req.body)
     const allowedUpdates = ['siteUrl','siteName','sitePassword','notes','sector']
     const isValidOperation = updates.every((update)=> allowedUpdates.includes(update))

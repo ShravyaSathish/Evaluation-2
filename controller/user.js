@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const Site = require('../model/site')
 
-
 const findMyCredentials = async(req, res, next)=>{
     const user = await User.findOne({number: req.body.number})
     if(!user){
@@ -57,7 +56,6 @@ const verifyOtp = async(req, res,next)=>{
     const rightOtpFind = otpHolder[otpHolder.length - 1]
     const validUser = await bcrypt.compare(req.body.otp, rightOtpFind.otp)
     if(rightOtpFind.number === req.body.number && validUser){
-        console.log("Tadaaaass")
         const user = new User(_.pick(req.body,["number"]))
         // console.log(user)
         // const result = await user.save()

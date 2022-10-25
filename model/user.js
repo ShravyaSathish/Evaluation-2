@@ -15,7 +15,12 @@ const userSchema = new Schema({
         type: String,
         required: true,
         minlength: 4,
+    },
+    refreshToken:{
+       type: String
     }
+    
+
 })
 userSchema.pre('save', async function(next){
     const user = this
@@ -29,9 +34,10 @@ userSchema.pre('save', async function(next){
 userSchema.methods.generateAuthtoken = async function(){
     const user = this
     const token = jwt.sign({_id: user._id},'secret',{expiresIn:'1h'})
-    //refresh token
-    const refreshToken = jwt.sign({_id: user._id},'refreshtokensecret',{expiresIn:'48h'})
-    return {token, refreshToken}
+    const  refreshToken = jwt.sign({_id: user._id},'refreshtokensecret',{expiresIn:'48h'})
+    user.refreshToken=refreshToken
+    await user.save()
+    return {token}
 }
 
 
